@@ -1,0 +1,28 @@
+import google.generativeai as genai
+from google.colab import userdata
+
+# Configure my Gemini API key
+# Access the API key from Colab secrets.
+genai.configure(api_key=userdata.get('GOOGLE_API_KEY'))
+
+# List available models to find a suitable one
+print("Available Models:")
+for m in genai.list_models():
+    if "generateContent" in m.supported_generation_methods:
+        print(m.name)
+
+# Load Gemini pro model (using the latest version as 'gemini-pro' is not found)
+model = genai.GenerativeModel("gemini-pro-latest")
+
+# Define a very simple function for the agent
+def simple_agent(prompt):
+    response = model.generate_content(prompt)
+    return response.text
+
+# Try first prompt
+question = "Can you explain the difference between Agentic AI and AI Agents?"
+answer = simple_agent(question)
+
+
+print("Ques: ", question)
+print("Answer: ", answer)
