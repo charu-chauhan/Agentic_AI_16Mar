@@ -1,0 +1,83 @@
+# step 1- install all required packages
+!pip install -q langchain langchain-google-genai langchain-community python-dotenv pypdf docx2txt langchain-text-splitters langchain-classic langchain-core
+
+# step 2 - importing libraries
+# import os - interact with env variables
+import os
+
+# files - upload files
+# userdata - access secrets stored in colab
+from google.colab import files, userdata
+
+# LLM Wrapper for Google Gemini, it allows call gemini like chatbot
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+# library to allow document of diff formats
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+
+# split document into chunks
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# helps to create structure prompt
+from langchain_core.prompts import PromptTemplate
+
+# all stps define above are put in chain
+from langchain_classic.chains import LLMChain
+
+# convert output into usable format
+from langchain_core.output_parsers import StrOutputParser
+
+
+# step-3: Setup API Key
+os.environ["GOOGLE_API_KEY"] = userdata.get("GOOGLE_API_KEY")
+
+
+# step-4: LLM
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",temperature=0.8)
+output_parser = StrOutputParser()
+
+
+# step-5: Prompt creation
+
+template = """
+You are a HealthCare assistant to help with the diagnosis based on given patient symptoms
+
+Patient Symptoms:
+{patient_symptoms}
+
+
+Provide the following analysis:
+- Is the condition serious (1 - 10)
+- What is the severity (Low/Medium/High)
+- What are the probable causes
+- What should the patient do next
+
+Keep answer simple and avoid medical jargoans
+"""
+
+prompt = PromptTemplate(template=template, input_variables=["patient_symptoms"])
+
+# combining all above predefined steps so that it can work together ( chains )
+chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
+
+
+# step-6: Ask for patient symtoms and extract chunks
+user_input = input("Please describe your health symptoms: ")
+
+# split user input into chunks
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=50, chunk_overlap=10
+)
+chunks = splitter.split_text(user_input)
+
+
+# combining all chunks and removing extra spaces and overlap data
+symptom_text = " ".join(c for c in chunks).strip()
+
+
+# step-7: run analysis
+
+result = chain.run(patient_symptoms=symptom_text)
+
+print("====Result Analysis=====")
+print(result)
