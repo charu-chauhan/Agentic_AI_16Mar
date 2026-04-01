@@ -1,3 +1,4 @@
+##### class 13 ....pinecone with phidata with gemini and sentence transformers
 import os
 import pandas as pd
 import streamlit as st
