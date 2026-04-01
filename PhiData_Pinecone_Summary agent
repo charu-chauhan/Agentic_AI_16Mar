@@ -1,4 +1,10 @@
 ##### class 13 ....pinecone with phidata with gemini and sentence transformers
+
+##### install these packages while running the code in your terminal
+
+##### pip3.11 install streamlit pandas python-dotenv pinecone sentence-transformers phidata pyreadline3 google-generativeai PyPDF2
+
+##### code starts here######
 import os
 import pandas as pd
 import streamlit as st
